@@ -73,31 +73,24 @@ class CMSSpider(scrapy.Spider):
 
             file_dir = self.create_type_dir(course_name, content_type)
 
-            cb_kwargs = {
-                'file_dir': file_dir,
-                'content_name': content_name
-            }
+            extension = response.url.split(".")[-1] # get the extenstion from the url to be added to the path
+            path = "/".join([file_dir, content_name])
+            path = ".".join([path,extension])
 
-            yield Request(content_url, self.handle_downloaded_file, cb_kwargs=cb_kwargs)
+            if(not os.path.isfile(path)):
+                yield Request(content_url, self.handle_downloaded_file, cb_kwargs={"path": path})
 
 
-    def handle_downloaded_file(self, response: Response, file_dir: str, content_name: str) -> None:
-        """This method is responsible for saving the file after getting its path
+    def handle_downloaded_file(self, response: Response, path: str) -> None:
+        """This method is responsible for saving the file after receiving the response
 
         Args:
             response (Response): The response got from the request made to fetch the file
-            file_dir (str): The directory which the file should be saved in
-            content_name (str): The name that the file should be named with
+            path (str): The path where the file will be saved
         """
-        
-        extension = response.url.split(".")[-1] # get the extenstion from the url to be added to the path
-        path = "/".join([file_dir, content_name])
-        path = ".".join([path,extension])
-
-        if(not os.path.isfile(path)):
-            with open(path, "wb") as f:
-                f.write(response.body)
-            print(f"Downloaded and saved {content_name} in {file_dir}")
+        with open(path, "wb") as f:
+            f.write(response.body)
+        print(f"Downloaded and saved {path}")
 
 
 
