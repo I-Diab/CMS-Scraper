@@ -1,2 +1,2 @@
 # CMS-Scraper
-University scraper
+University Content Scraper
